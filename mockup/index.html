@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoodBridge - UI Mockup</title>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6C63FF;
+            --primary-light: #8B85FF;
+            --happy: #FFD93D;
+            --happy-gradient: linear-gradient(135deg, #FFD93D 0%, #FF9A3D 100%);
+            --sad: #6BCB77;
+            --sad-gradient: linear-gradient(135deg, #74b9ff 0%, #a29bfe 100%);
+            --pink: #FF6B9D;
+            --bg: #F8F9FE;
+            --card: #FFFFFF;
+            --text: #2D3436;
+            --text-light: #636E72;
+            --shadow: 0 4px 20px rgba(108, 99, 255, 0.15);
+            --shadow-sm: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 40px;
+        }
+
+        .mockup-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: var(--bg);
+            border-radius: 50px;
+            padding: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .phone-frame::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 30px;
+            background: #1a1a2e;
+            border-radius: 0 0 20px 20px;
+            z-index: 100;
+        }
+
+        .screen {
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            border-radius: 35px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .screen-label {
+            text-align: center;
+            color: white;
+            margin-top: 15px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 45px 25px 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .status-bar .time {
+            font-weight: 700;
+        }
+
+        .status-bar .icons {
+            display: flex;
+            gap: 5px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 25px;
+        }
+
+        .header h2 {
+            font-size: 1.5rem;
+            color: var(--text);
+        }
+
+        .header-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--card);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+        }
+
+        /* Check-in Screen */
+        .checkin-content {
+            padding: 20px 25px;
+            text-align: center;
+        }
+
+        .greeting {
+            font-size: 1.3rem;
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+
+        .question {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 40px;
+        }
+
+        .mood-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .mood-btn {
+            width: 140px;
+            height: 160px;
+            border-radius: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            color: white;
+        }
+
+        .mood-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        .mood-btn.happy {
+            background: var(--happy-gradient);
+        }
+
+        .mood-btn.sad {
+            background: var(--sad-gradient);
+        }
+
+        .mood-btn .emoji {
+            font-size: 4rem;
+            margin-bottom: 10px;
+        }
+
+        .mood-btn .label {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .note-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #E8E8E8;
+            border-radius: 15px;
+            font-size: 1rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .note-input:focus {
+            border-color: var(--primary);
+        }
+
+        .note-label {
+            text-align: left;
+            color: var(--text-light);
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card);
+            padding: 15px 30px 30px;
+            display: flex;
+            justify-content: space-around;
+            border-radius: 30px 30px 35px 35px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-light);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-item .icon {
+            font-size: 1.5rem;
+        }
+
+        /* Match List Screen */
+        .match-header {
+            background: var(--happy-gradient);
+            padding: 45px 25px 30px;
+            border-radius: 0 0 35px 35px;
+            color: white;
+            text-align: center;
+        }
+
+        .match-header h2 {
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .match-header p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .match-list {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .match-card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .match-avatar {
+            width: 55px;
+            height: 55px;
+            background: var(--sad-gradient);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .match-info {
+            flex: 1;
+        }
+
+        .match-name {
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 3px;
+        }
+
+        .match-note {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .match-time {
+            font-size: 0.75rem;
+            color: #B2BEC3;
+        }
+
+        .send-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .send-btn:hover {
+            background: var(--primary-light);
+            transform: scale(1.05);
+        }
+
+        /* Send Message Screen */
+        .send-screen {
+            background: white;
+        }
+
+        .send-header {
+            background: linear-gradient(135deg, #6C63FF 0%, #a29bfe 100%);
+            padding: 45px 25px 25px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .send-header .back {
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .recipient-info {
+            text-align: center;
+            padding: 25px;
+            border-bottom: 1px solid #F0F0F0;
+        }
+
+        .recipient-avatar {
+            width: 70px;
+            height: 70px;
+            background: var(--sad-gradient);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 15px;
+        }
+
+        .recipient-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text);
+        }
+
+        .recipient-note {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        .templates-section {
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 15px;
+        }
+
+        .template-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .template-item {
+            background: #F8F9FE;
+            padding: 15px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .template-item:hover {
+            border-color: var(--primary);
+            background: white;
+        }
+
+        .template-item.selected {
+            border-color: var(--primary);
+            background: rgba(108, 99, 255, 0.1);
+        }
+
+        .template-emoji {
+            font-size: 1.5rem;
+        }
+
+        .template-text {
+            font-size: 0.95rem;
+            color: var(--text);
+        }
+
+        .send-actions {
+            padding: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #E8E8E8;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: white;
+            color: var(--text);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .primary-btn {
+            width: calc(100% - 40px);
+            margin: 10px 20px;
+            padding: 18px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .primary-btn:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(108, 99, 255, 0.3);
+        }
+
+        /* Inbox Screen */
+        .inbox-header {
+            background: linear-gradient(135deg, #FF6B9D 0%, #FF8E53 100%);
+            padding: 45px 25px 25px;
+            color: white;
+            text-align: center;
+        }
+
+        .inbox-header h2 {
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .inbox-count {
+            background: white;
+            color: var(--pink);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .message-list {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message-card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .message-sender {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .sender-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .sender-name {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .message-content {
+            color: var(--text);
+            line-height: 1.6;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .message-reactions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .reaction-btn {
+            padding: 10px 20px;
+            border: 2px solid #E8E8E8;
+            border-radius: 25px;
+            background: white;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .reaction-btn:hover {
+            border-color: var(--primary);
+            background: rgba(108, 99, 255, 0.05);
+        }
+
+        .reaction-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        /* Stats Screen */
+        .stats-header {
+            background: linear-gradient(135deg, #6BCB77 0%, #38ada9 100%);
+            padding: 45px 25px 30px;
+            color: white;
+            text-align: center;
+        }
+
+        .stats-header h2 {
+            color: white;
+        }
+
+        .stats-content {
+            padding: 20px;
+        }
+
+        .mood-calendar {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .calendar-title {
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 15px;
+        }
+
+        .calendar-days {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .cal-day {
+            text-align: center;
+        }
+
+        .cal-day .label {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
+
+        .cal-day .mood {
+            font-size: 1.8rem;
+        }
+
+        .impact-cards {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .impact-card {
+            flex: 1;
+            background: var(--card);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .impact-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .impact-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .streak-card {
+            background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+            border-radius: 20px;
+            padding: 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .streak-icon {
+            font-size: 2.5rem;
+        }
+
+        .streak-info .number {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .streak-info .label {
+            opacity: 0.9;
+        }
+
+        .badges-section {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .badges-title {
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 15px;
+        }
+
+        .badges-grid {
+            display: flex;
+            gap: 15px;
+        }
+
+        .badge-item {
+            width: 60px;
+            height: 60px;
+            background: #F8F9FE;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .badge-item.locked {
+            opacity: 0.3;
+            filter: grayscale(100%);
+        }
+
+        /* Splash Screen */
+        .splash-screen {
+            background: linear-gradient(135deg, #6C63FF 0%, #a29bfe 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .splash-logo {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+
+        .splash-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .splash-subtitle {
+            color: rgba(255,255,255,0.8);
+            font-size: 1.1rem;
+        }
+
+        .splash-loader {
+            margin-top: 60px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .splash-loader span {
+            width: 10px;
+            height: 10px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .splash-loader span:nth-child(1) { animation-delay: -0.32s; }
+        .splash-loader span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <h1>🌈 MoodBridge</h1>
+    <p class="subtitle">UI Mockup - Cầu Nối Tâm Trạng</p>
+
+    <div class="mockup-container">
+        
+        <!-- Screen 1: Splash -->
+        <div>
+            <div class="phone-frame">
+                <div class="screen splash-screen">
+                    <div class="splash-logo">🌈</div>
+                    <div class="splash-title">MoodBridge</div>
+                    <div class="splash-subtitle">Cầu Nối Tâm Trạng</div>
+                    <div class="splash-loader">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+            <p class="screen-label">1. Splash Screen</p>
+        </div>
+
+        <!-- Screen 2: Check-in -->
+        <div>
+            <div class="phone-frame">
+                <div class="screen">
+                    <div class="status-bar">
+                        <span class="time">9:41</span>
+                        <div class="icons">📶 📡 🔋</div>
+                    </div>
+                    <div class="header">
+                        <span style="font-size: 1.5rem;">☰</span>
+                        <h2 style="font-size: 1.3rem;">🌈 MoodBridge</h2>
+                        <div class="header-icon">🔔</div>
+                    </div>
+                    <div class="checkin-content">
+                        <p class="greeting">Chào buổi sáng! ☀️</p>
+                        <p class="question">Hôm nay bạn cảm thấy thế nào?</p>
+                        
+                        <div class="mood-buttons">
+                            <button class="mood-btn happy">
+                                <span class="emoji">😊</span>
+                                <span class="label">VUI</span>
+                            </button>
+                            <button class="mood-btn sad">
+                                <span class="emoji">😢</span>
+                                <span class="label">BUỒN</span>
+                            </button>
+                        </div>
+
+                        <p class="note-label">Thêm ghi chú (tuỳ chọn)</p>
+                        <input type="text" class="note-input" placeholder="Hôm nay tôi cảm thấy...">
+                    </div>
+
+                    <div class="bottom-nav">
+                        <div class="nav-item active">
+                            <span class="icon">🏠</span>
+                            <span>Home</span>
+                        </div>
+                        <div class="nav-item">
+                            <span class="icon">📊</span>
+                            <span>Stats</span>
+                        </div>
+                        <div class="nav-item">
+                            <span class="icon">💬</span>
+                            <span>Chat</span>
+                        </div>
+                        <div class="nav-item">
+                            <span class="icon">👤</span>
+                            <span>Me</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="screen-label">2. Daily Check-in</p>
+        </div>
+
+        <!-- Screen 3: Match List -->
+        <div>
+            <div class="phone-frame">
+                <div class="screen">
+                    <div class="match-header">
+                        <div style="font-size: 2.5rem; margin-bottom: 10px;">🎉</div>
+                        <h2>Tuyệt vời!</h2>
+                        <p>Hãy lan tỏa niềm vui của bạn</p>
+                    </div>
+                    
+                    <div class="match-list">
+                        <div class="match-card">
+                            <div class="match-avatar">🎭</div>
+                            <div class="match-info">
+                                <div class="match-name">Người lạ #2847</div>
+                                <div class="match-note">"Một ngày khó khăn..."</div>
+                                <div class="match-time">🕐 2 giờ trước</div>
+                            </div>
+                            <button class="send-btn">Động viên</button>
+                        </div>
+
+                        <div class="match-card">
+                            <div class="match-avatar">🎭</div>
+                            <div class="match-info">
+                                <div class="match-name">Người lạ #1593</div>
+                                <div class="match-note">"Cảm thấy cô đơn quá"</div>
+                                <div class="match-time">🕐 3 giờ trước</div>
+                            </div>
+                            <button class="send-btn">Động viên</button>
+                        </div>
+
+                        <div class="match-card">
+                            <div class="match-avatar">🎭</div>
+                            <div class="match-info">
+                                <div class="match-name">Người lạ #4012</div>
+                                <div class="match-note">"Công việc stress quá"</div>
+                                <div class="match-time">🕐 5 giờ trước</div>
+                            </div>
+                            <button class="send-btn">Động viên</button>
+                        </div>
+
+                        <div class="match-card">
+                            <div class="match-avatar">🎭</div>
+                            <div class="match-info">
+                                <div class="match-name">Người lạ #7821</div>
+                                <div class="match-time">🕐 6 giờ trước</div>
+                            </div>
+                            <button class="send-btn">Động viên</button>
+                        </div>
+                    </div>
+
+                    <div class="bottom-nav">
+                        <div class="nav-item active">
+                            <span class="icon">🏠</span>
+                            <span>Home</span>
+                        </div>
+                        <div class="nav-item">
+                            <span class="icon">📊</span>
+                            <span>Stats</span>
+                        </div>
+                        <div class="nav-item">
+                            <span class="icon">💬</span>
+                            <span>Chat</span>
+                        </div>
+                        <div class="nav-item">
+                            <span class="icon">👤</span>
+                            <span>Me</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="screen-label">3. Match List (Người Vui)</p>
+        </div>
+
+        <!-- Screen 4: Send Message -->
+        <div>
+            <div class="phone-frame">
+                <div class="screen send-screen">
+                    <div class="send-header">
+                        <span class="back">←</span>
+                        <span style="font-weight: 600;">Gửi động viên</span>
+                    </div>
+
+                    <div class="recipient-info">
+                        <div class="recipient-avatar">🎭</div>
+                        <div class="recipient-name">Người lạ #2847</div>
+                        <div class="recipient-note">"Một ngày khó khăn..."</div>
+                    </div>
+
+                    <div class="templates-section">
+                        <div class="section-title">Chọn lời động viên:</div>
+                        <div class="template-list">
+                            <div class="template-item selected">
+                                <span class="template-emoji">💪</span>
+                                <span class="template-text">Bạn làm được! Mình tin bạn!</span>
+                            </div>
+                            <div class="template-item">
+                                <span class="template-emoji">🌈</span>
+                                <span class="template-text">Ngày mai sẽ tốt hơn!</span>
+                            </div>
+                            <div class="template-item">
+                                <span class="template-emoji">🤗</span>
+                                <span class="template-text">Mình ở đây nếu bạn cần nói chuyện</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="send-actions">
+                        <div class="action-btn">
+                            <span>🎤</span>
+                            <span>Ghi âm</span>
+                        </div>
+                        <div class="action-btn">
+                            <span>✏️</span>
+                            <span>Viết riêng</span>
+                        </div>
+                    </div>
+
+                    <button class="primary-btn">Gửi đi 💕</button>
+                </div>
+            </div>
+            <p class="screen-label">4. Send Encouragement</p>
+        </div>
+
+        <!-- Screen 5: Inbox -->
+        <div>
+            <div class="phone-frame">
+                <div class="screen">
+                    <div class="inbox-header">
+                        <div style="font-size: 2.5rem; margin-bottom: 10px;">💌</div>
+                        <h2>Tin nhắn động viên</h2>
+                        <div class="inbox-count">3 tin mới</div>
+                    </div>
+
+                    <div class="message-list">
+                        <div class="message-card">
+                            <div class="message-sender">
+                                <div class="sender-avatar">🌟</div>
+                                <span class="sender-name">Người tốt bụng #1</span>
+                            </div>
+                            <div class="message-content">
+                                "Ngày mai sẽ tốt hơn! Mình tin bạn làm được! 💪 Gửi bạn thật nhiều năng lượng tích cực!"
+                            </div>
+                            <div class="message-reactions">
+                                <button class="reaction-btn active">❤️ Cảm ơn</button>
+                                <button class="reaction-btn">😊 Vui hơn</button>
+                                <button class="reaction-btn">💬</button>
+                            </div>
+                        </div>
+
+                        <div class="message-card">
+                            <div class="message-sender">
+                                <div class="sender-avatar">🌟</div>
+                                <span class="sender-name">Người tốt bụng #2</span>
+                            </div>
+                            <div class="message-content">
+                                "Bạn không cô đơn đâu! Có rất nhiều người đang nghĩ đến bạn. 🤗"
+                            </div>
+                            <div class="message-reactions">
+                                <button class="reaction-btn">❤️ Cảm ơn</button>
+                                <button class="reaction-btn">😊 Vui hơn</button>
+                                <button class="reaction-btn">💬</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bottom-nav">
+                        <div class="nav-item">
+                            <span class="icon">🏠</span>
+                            <span>Home</span>
+                        </div>
+                        <div class="nav-item">
+                            <span class="icon">📊</span>
+                            <span>Stats</span>
+                        </div>
+                        <div class="nav-item active">
+                            <span class="icon">💬</span>
+                            <span>Chat</span>
+                        </div>
+                        <div class="nav-item">
+                            <span class="icon">👤</span>
+                            <span>Me</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="screen-label">5. Inbox (Người Buồn)</p>
+        </div>
+
+        <!-- Screen 6: Stats -->
+        <div>
+            <div class="phone-frame">
+                <div class="screen">
+                    <div class="stats-header">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">📊</div>
+                        <h2>Thống kê của bạn</h2>
+                    </div>
+
+                    <div class="stats-content">
+                        <div class="mood-calendar">
+                            <div class="calendar-title">Tuần này</div>
+                            <div class="calendar-days">
+                                <div class="cal-day">
+                                    <div class="label">T2</div>
+                                    <div class="mood">😊</div>
+                                </div>
+                                <div class="cal-day">
+                                    <div class="label">T3</div>
+                                    <div class="mood">😢</div>
+                                </div>
+                                <div class="cal-day">
+                                    <div class="label">T4</div>
+                                    <div class="mood">😊</div>
+                                </div>
+                                <div class="cal-day">
+                                    <div class="label">T5</div>
+                                    <div class="mood">😊</div>
+                                </div>
+                                <div class="cal-day">
+                                    <div class="label">T6</div>
+                                    <div class="mood">😢</div>
+                                </div>
+                                <div class="cal-day">
+                                    <div class="label">T7</div>
+                                    <div class="mood">😊</div>
+                                </div>
+                                <div class="cal-day">
+                                    <div class="label">CN</div>
+                                    <div class="mood">😊</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="impact-cards">
+                            <div class="impact-card">
+                                <div class="impact-number">12</div>
+                                <div class="impact-label">Tin đã gửi</div>
+                            </div>
+                            <div class="impact-card">
+                                <div class="impact-number">8</div>
+                                <div class="impact-label">Người vui hơn</div>
+                            </div>
+                        </div>
+
+                        <div class="streak-card">
+                            <div class="streak-icon">🔥</div>
+                            <div class="streak-info">
+                                <div class="number">5 ngày</div>
+                                <div class="label">Streak hiện tại</div>
+                            </div>
+                        </div>
+
+                        <div class="badges-section">
+                            <div class="badges-title">🏆 Badges</div>
+                            <div class="badges-grid">
+                                <div class="badge-item">🌟</div>
+                                <div class="badge-item">💪</div>
+                                <div class="badge-item">🎯</div>
+                                <div class="badge-item locked">👼</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bottom-nav">
+                        <div class="nav-item">
+                            <span class="icon">🏠</span>
+                            <span>Home</span>
+                        </div>
+                        <div class="nav-item active">
+                            <span class="icon">📊</span>
+                            <span>Stats</span>
+                        </div>
+                        <div class="nav-item">
+                            <span class="icon">💬</span>
+                            <span>Chat</span>
+                        </div>
+                        <div class="nav-item">
+                            <span class="icon">👤</span>
+                            <span>Me</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="screen-label">6. Stats & Badges</p>
+        </div>
+
+    </div>
+
+    <p style="text-align: center; color: rgba(255,255,255,0.6); margin-top: 40px;">
+        Made with 💕 by Heo 🐷 | 2026
+    </p>
+</body>
+</html>

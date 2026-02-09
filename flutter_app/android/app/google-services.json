@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "209388970065",
+    "project_id": "moodbridge-app",
+    "storage_bucket": "moodbridge-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:209388970065:android:3bb64eb20b1ddb55519870",
+        "android_client_info": {
+          "package_name": "com.moodbridge.moodbridge"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHeSPRS-FqQHV8Xhu4P9scdlEAElta76Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
