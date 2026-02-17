@@ -22,6 +22,14 @@ class UserRepository {
     return UserModel.fromFirestore(doc);
   }
 
+  /// Get user profile as real-time stream
+  Stream<UserModel?> getUserStream(String uid) {
+    return _users.doc(uid).snapshots().map((doc) {
+      if (!doc.exists) return null;
+      return UserModel.fromFirestore(doc);
+    });
+  }
+
   /// Update user fields
   Future<void> updateUser(String uid, Map<String, dynamic> data) async {
     data['updatedAt'] = Timestamp.now();

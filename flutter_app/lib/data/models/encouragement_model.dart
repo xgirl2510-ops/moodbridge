@@ -23,9 +23,14 @@ class EncouragementModel {
   // Reaction
   final ReactionType? reaction;
   final DateTime? reactionAt;
+  final String? reactionMessage; // Text message for wantToChat reaction
   
   // Timestamps
   final DateTime createdAt;
+  
+  // Reply info
+  final bool isReply;
+  final String? replyToEncouragementId;
   
   // Denormalized sender info
   final String senderAnonymousId;
@@ -46,6 +51,9 @@ class EncouragementModel {
     this.readAt,
     this.reaction,
     this.reactionAt,
+    this.reactionMessage,
+    this.isReply = false,
+    this.replyToEncouragementId,
     required this.createdAt,
     required this.senderAnonymousId,
     this.senderDisplayName,
@@ -99,6 +107,9 @@ class EncouragementModel {
       readAt: (data['readAt'] as Timestamp?)?.toDate(),
       reaction: reaction,
       reactionAt: (data['reactionAt'] as Timestamp?)?.toDate(),
+      reactionMessage: data['reactionMessage'],
+      isReply: data['isReply'] ?? false,
+      replyToEncouragementId: data['replyToEncouragementId'],
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       senderAnonymousId: data['senderAnonymousId'] ?? 'User#0000',
       senderDisplayName: data['senderDisplayName'],
@@ -150,6 +161,9 @@ class EncouragementModel {
       'readAt': readAt != null ? Timestamp.fromDate(readAt!) : null,
       'reaction': reactionStr,
       'reactionAt': reactionAt != null ? Timestamp.fromDate(reactionAt!) : null,
+      'reactionMessage': reactionMessage,
+      'isReply': isReply,
+      'replyToEncouragementId': replyToEncouragementId,
       'createdAt': Timestamp.fromDate(createdAt),
       'senderAnonymousId': senderAnonymousId,
       'senderDisplayName': senderDisplayName,

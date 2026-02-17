@@ -43,11 +43,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const LoginScreen(),
       ),
 
-      // Match list (from happy flow, no bottom nav)
-      GoRoute(
-        path: Routes.matchList,
-        builder: (context, state) => const MatchListScreen(),
-      ),
+      // Match list moved to ShellRoute for bottom nav
 
       // Send encouragement (no bottom nav)
       GoRoute(
@@ -56,7 +52,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           final extra = state.extra as Map<String, dynamic>?;
           return SendEncouragementScreen(
             recipientId: extra?['recipientId'] ?? '',
-            recipientName: extra?['recipientName'] ?? 'Nguoi la',
+            recipientName: extra?['recipientName'] ?? 'Người lạ',
             recipientNote: extra?['recipientNote'],
           );
         },
@@ -91,6 +87,12 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: Routes.profile,
             pageBuilder: (context, state) => const NoTransitionPage(
               child: ProfileScreen(),
+            ),
+          ),
+          GoRoute(
+            path: Routes.matchList,
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: MatchListScreen(),
             ),
           ),
         ],

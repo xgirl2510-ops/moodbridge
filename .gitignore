@@ -26,5 +26,8 @@ flutter_app/pubspec.lock
 *.ipa
 *.app
 
+# Node
+node_modules/
+
 # Logs
 *.log

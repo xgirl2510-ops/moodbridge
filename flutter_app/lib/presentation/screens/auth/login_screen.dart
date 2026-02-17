@@ -44,7 +44,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     try {
       final authRepo = ref.read(authRepositoryProvider);
       if (_isLogin) {
-        await authRepo.signInWithEmail(email, password);
+        final cred = await authRepo.signInWithEmail(email, password);
+        await ensureUserProfile(ref, cred.user!.uid, email);
       } else {
         final cred = await authRepo.signUpWithEmail(email, password);
         await createUserProfile(ref, cred.user!.uid, email);

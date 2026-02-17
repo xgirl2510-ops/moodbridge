@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../config/theme.dart';
 import '../../../core/constants/badges.dart';
@@ -21,7 +22,7 @@ class StatsScreen extends ConsumerWidget {
       backgroundColor: const Color(0xFFF8F9FE),
       body: Column(
         children: [
-          // Header with green gradient - matching mockup
+          // Header with green gradient - matching Profile style
           Container(
             padding: EdgeInsets.only(
               top: MediaQuery.of(context).padding.top + AppTheme.spacingM,
@@ -36,20 +37,46 @@ class StatsScreen extends ConsumerWidget {
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(35),
-                bottomRight: Radius.circular(35),
+                bottomLeft: Radius.circular(AppTheme.radiusXLarge),
+                bottomRight: Radius.circular(AppTheme.radiusXLarge),
               ),
             ),
             child: Column(
               children: [
-                const SizedBox(height: AppTheme.spacingM),
-                const Text('📊', style: TextStyle(fontSize: 40)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Thống kê',
+                      style: GoogleFonts.lora(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const Icon(LucideIcons.trendingUp, color: Colors.white),
+                  ],
+                ),
+                const SizedBox(height: AppTheme.spacingXL),
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.5),
+                      width: 3,
+                    ),
+                  ),
+                  child: const Icon(LucideIcons.barChart2, size: 40, color: Colors.white),
+                ),
                 const SizedBox(height: AppTheme.spacingM),
                 Text(
                   'Thống kê của bạn',
-                  style: GoogleFonts.beVietnamPro(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
+                  style: GoogleFonts.raleway(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),
                 ),
@@ -99,13 +126,17 @@ class StatsScreen extends ConsumerWidget {
                 child: _ImpactCard(
                   value: '$totalSent',
                   label: 'Tin đã gửi',
+                  icon: LucideIcons.send,
+                  iconColor: AppTheme.primary,
                 ),
               ),
               const SizedBox(width: 15),
               Expanded(
                 child: _ImpactCard(
                   value: '$peopleHelped',
-                  label: 'Người vui hơn',
+                  label: 'Người đã giúp',
+                  icon: LucideIcons.heart,
+                  iconColor: const Color(0xFF6BCB77),
                 ),
               ),
             ],
@@ -139,7 +170,7 @@ class StatsScreen extends ConsumerWidget {
                       ),
                     ),
                     Text(
-                      'Streak hiện tại',
+                      'Gửi động viên liên tiếp',
                       style: GoogleFonts.beVietnamPro(
                         fontSize: 14,
                         color: Colors.white.withValues(alpha: 0.9),
@@ -278,10 +309,14 @@ class StatsScreen extends ConsumerWidget {
 class _ImpactCard extends StatelessWidget {
   final String value;
   final String label;
+  final IconData icon;
+  final Color iconColor;
 
   const _ImpactCard({
     required this.value,
     required this.label,
+    required this.icon,
+    required this.iconColor,
   });
 
   @override
@@ -301,14 +336,25 @@ class _ImpactCard extends StatelessWidget {
       ),
       child: Column(
         children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(icon, color: iconColor, size: 24),
+          ),
+          const SizedBox(height: 12),
           Text(
             value,
             style: GoogleFonts.beVietnamPro(
-              fontSize: 40,
+              fontSize: 36,
               fontWeight: FontWeight.bold,
-              color: AppTheme.primary,
+              color: AppTheme.textPrimary,
             ),
           ),
+          const SizedBox(height: 4),
           Text(
             label,
             style: GoogleFonts.beVietnamPro(

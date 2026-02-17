@@ -9,20 +9,20 @@ final checkinRepositoryProvider = Provider<CheckinRepository>((ref) {
   return CheckinRepository();
 });
 
-/// Today's check-in for current user (null if not checked in yet)
-final todayCheckinProvider = FutureProvider<CheckinModel?>((ref) async {
+/// Today's check-in for current user (realtime)
+final todayCheckinProvider = StreamProvider<CheckinModel?>((ref) {
   final uid = ref.watch(currentUserIdProvider);
-  if (uid == null) return null;
-  return ref.read(checkinRepositoryProvider).getTodayCheckin(uid);
+  if (uid == null) return Stream.value(null);
+  return ref.read(checkinRepositoryProvider).watchTodayCheckin(uid);
 });
 
-/// Sad users available for matching (happy user flow)
-final sadUsersProvider = FutureProvider<List<CheckinModel>>((ref) async {
+/// Sad users available for matching (realtime, random 5)
+final sadUsersProvider = StreamProvider.autoDispose<List<CheckinModel>>((ref) {
   final uid = ref.watch(currentUserIdProvider);
-  if (uid == null) return [];
+  if (uid == null) return Stream.value([]);
   return ref
       .read(checkinRepositoryProvider)
-      .getSadUsersForMatching(excludeUserId: uid);
+      .watchSadUsersForMatching(excludeUserId: uid);
 });
 
 /// Check-in history for mood calendar
@@ -55,23 +55,28 @@ Future<CheckinModel?> submitCheckin(
     date: CheckinRepository.todayDateString(),
     createdAt: DateTime.now(),
     userAnonymousId: user?.anonymousId ?? 'User#0000',
-    userDisplayName: user?.isPublic == true ? user?.displayName : null,
+    userDisplayName: user?.displayName,
     userAvatarUrl: user?.avatarUrl,
   );
 
   await checkinRepo.createCheckin(checkin);
 
-  // Update user stats
-  final stats = await userRepo.getUserStats(uid);
-  final totalCheckins = (stats['totalCheckins'] ?? 0) + 1;
-  final happyDays =
-      (stats['happyDays'] ?? 0) + (mood == MoodType.happy ? 1 : 0);
-  final sadDays = (stats['sadDays'] ?? 0) + (mood == MoodType.sad ? 1 : 0);
-  await userRepo.updateUserStats(uid, {
-    'totalCheckins': totalCheckins,
-    'happyDays': happyDays,
-    'sadDays': sadDays,
-  });
+  // Update user stats (non-blocking, don't fail the checkin)
+  try {
+    final stats = await userRepo.getUserStats(uid);
+    final totalCheckins = (stats['totalCheckins'] ?? 0) + 1;
+    final happyDays =
+        (stats['happyDays'] ?? 0) + (mood == MoodType.happy ? 1 : 0);
+    final sadDays = (stats['sadDays'] ?? 0) + (mood == MoodType.sad ? 1 : 0);
+    await userRepo.updateUserStats(uid, {
+      'totalCheckins': totalCheckins,
+      'happyDays': happyDays,
+      'sadDays': sadDays,
+    });
+  } catch (e) {
+    // Stats update failed but checkin was created successfully
+    print('[MoodBridge] Stats update failed during checkin: $e');
+  }
 
   // Refresh providers
   ref.invalidate(todayCheckinProvider);

@@ -7,7 +7,9 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../config/routes.dart';
 import '../../../config/theme.dart';
+import '../../../services/notification_service.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/checkin_provider.dart';
 import '../../providers/user_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -18,7 +20,24 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _ensureProfile();
+  }
+
+  Future<void> _ensureProfile() async {
+    final uid = ref.read(currentUserIdProvider);
+    if (uid == null) return;
+    await ensureUserProfile(ref, uid, null);
+    ref.invalidate(currentUserProvider);
+  }
+
   Future<void> _logout() async {
+    final uid = ref.read(currentUserIdProvider);
+    if (uid != null) {
+      await NotificationService().removeFcmToken(uid);
+    }
     final authRepo = ref.read(authRepositoryProvider);
     await authRepo.signOut();
     if (mounted) context.go(Routes.login);
@@ -29,6 +48,73 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     if (uid == null) return;
     await ref.read(userRepositoryProvider).updateUser(uid, {field: value});
     ref.invalidate(currentUserProvider);
+
+    // Update local notification schedule when reminder settings change
+    if (field == 'checkinReminderEnabled') {
+      final user = ref.read(currentUserProvider).value;
+      await NotificationService().scheduleCheckinReminder(
+        enabled: value,
+        time: user?.checkinReminderTime ?? '09:00',
+      );
+    }
+  }
+
+  Future<void> _editDisplayName() async {
+    final user = ref.read(currentUserProvider).value;
+    if (user == null) return;
+    
+    final controller = TextEditingController(text: user.displayName);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          'Đổi tên hiển thị',
+          style: GoogleFonts.beVietnamPro(fontWeight: FontWeight.bold),
+        ),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          maxLength: 30,
+          style: GoogleFonts.beVietnamPro(),
+          decoration: InputDecoration(
+            hintText: 'Nhập tên mới...',
+            hintStyle: GoogleFonts.beVietnamPro(color: AppTheme.textLight),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Huỷ', style: GoogleFonts.beVietnamPro()),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: Text('Lưu', style: GoogleFonts.beVietnamPro(fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+    
+    if (result != null && result.isNotEmpty && result != user.displayName) {
+      final uid = ref.read(currentUserIdProvider);
+      if (uid == null) return;
+      await ref.read(userRepositoryProvider).updateUser(uid, {
+        'displayName': result,
+        'anonymousId': result,
+      });
+      // Also update today's checkin document so other users see the new name
+      final checkinRepo = ref.read(checkinRepositoryProvider);
+      final checkin = await checkinRepo.getTodayCheckin(uid);
+      if (checkin != null) {
+        await checkinRepo.updateUserDisplayInfo(
+          checkin.id,
+          userAnonymousId: result,
+          userDisplayName: result,
+        );
+      }
+      ref.invalidate(todayCheckinProvider);
+      ref.invalidate(currentUserProvider);
+    }
   }
 
   @override
@@ -60,14 +146,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Cai dat',
+                        'Cá nhân',
                         style: GoogleFonts.lora(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
-                      const Icon(LucideIcons.settings, color: Colors.white),
+                      const SizedBox.shrink(),
                     ],
                   ),
                   const SizedBox(height: AppTheme.spacingXL),
@@ -86,16 +172,30 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                   const SizedBox(height: AppTheme.spacingM),
                   userAsync.when(
-                    data: (user) => Text(
-                      user?.anonymousId ?? 'User',
-                      style: GoogleFonts.raleway(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                    data: (user) => GestureDetector(
+                      onTap: _editDisplayName,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            user?.anonymousId ?? 'User',
+                            style: GoogleFonts.raleway(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Icon(
+                            LucideIcons.pencil,
+                            size: 16,
+                            color: Colors.white.withValues(alpha: 0.7),
+                          ),
+                        ],
                       ),
                     ),
                     loading: () => const CircularProgressIndicator(color: Colors.white),
-                    error: (_, __) => const Text('Error', style: TextStyle(color: Colors.white)),
+                    error: (_, __) => const Text('Lỗi', style: TextStyle(color: Colors.white)),
                   ),
                   const SizedBox(height: AppTheme.spacingXS),
                   Container(
@@ -108,7 +208,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
                     ),
                     child: Text(
-                      'An danh',
+                      'Ẩn danh',
                       style: GoogleFonts.raleway(fontSize: 12, color: Colors.white),
                     ),
                   ),
@@ -121,7 +221,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               child: userAsync.when(
                 data: (user) => _buildSettings(user),
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (_, __) => const Center(child: Text('Loi tai du lieu')),
+                error: (_, __) => const Center(child: Text('Lỗi tải dữ liệu')),
               ),
             ),
           ],
@@ -131,70 +231,33 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   Widget _buildSettings(dynamic user) {
-    final receiveEnc = user?.receiveEncouragements ?? true;
     final pushEnabled = user?.pushEnabled ?? true;
     final checkinReminder = user?.checkinReminderEnabled ?? true;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _SectionTitle(title: 'Quyen rieng tu'),
-        _SettingCard(
-          children: [
-            _ToggleSetting(
-              icon: LucideIcons.heart,
-              title: 'Nhan tin dong vien',
-              subtitle: 'Khi ban check-in buon',
-              value: receiveEnc,
-              onChanged: (v) => _toggleSetting('receiveEncouragements', v),
-            ),
-          ],
-        ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2, end: 0),
-        const SizedBox(height: AppTheme.spacingL),
-
-        _SectionTitle(title: 'Thong bao'),
+        _SectionTitle(title: 'Thông báo'),
         _SettingCard(
           children: [
             _ToggleSetting(
               icon: LucideIcons.bell,
-              title: 'Push notifications',
+              title: 'Thông báo đẩy',
               value: pushEnabled,
               onChanged: (v) => _toggleSetting('pushEnabled', v),
             ),
             const Divider(height: 1),
             _ToggleSetting(
               icon: LucideIcons.clock,
-              title: 'Nhac check-in',
-              subtitle: '9:00 AM moi ngay',
+              title: 'Nhắc check-in',
+              subtitle: '9:00 AM mỗi ngày',
               value: checkinReminder,
               onChanged: (v) => _toggleSetting('checkinReminderEnabled', v),
             ),
           ],
-        ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.2, end: 0),
+        ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2, end: 0),
         const SizedBox(height: AppTheme.spacingL),
 
-        _SectionTitle(title: 'Thong tin'),
-        _SettingCard(
-          children: [
-            _SettingItem(
-              icon: LucideIcons.helpCircle,
-              title: 'Tro giup',
-              onTap: () {},
-            ),
-            const Divider(height: 1),
-            _SettingItem(
-              icon: LucideIcons.shield,
-              title: 'Chinh sach bao mat',
-              onTap: () {},
-            ),
-            const Divider(height: 1),
-            _SettingItem(
-              icon: LucideIcons.fileText,
-              title: 'Dieu khoan su dung',
-              onTap: () {},
-            ),
-          ],
-        ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.2, end: 0),
         const SizedBox(height: AppTheme.spacingXL),
 
         // Logout button
@@ -203,7 +266,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           child: OutlinedButton.icon(
             onPressed: _logout,
             icon: const Icon(LucideIcons.logOut),
-            label: const Text('Dang xuat'),
+            label: const Text('Đăng xuất'),
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.red,
               side: const BorderSide(color: Colors.red),

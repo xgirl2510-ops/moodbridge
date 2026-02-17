@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'firebase_options.dart';
+import 'services/notification_service.dart';
 
 import 'config/routes.dart';
 import 'config/theme.dart';
@@ -22,6 +23,9 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Initialize notification service
+  await NotificationService().initialize();
 
   // Register Vietnamese locale for timeago
   timeago.setLocaleMessages('vi', timeago.ViMessages());

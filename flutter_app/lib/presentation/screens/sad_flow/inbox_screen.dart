@@ -6,15 +6,39 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../config/theme.dart';
 import '../../../data/models/encouragement_model.dart';
 import '../../providers/encouragement_provider.dart';
+import '../../providers/user_provider.dart';
 
-class InboxScreen extends ConsumerWidget {
+class InboxScreen extends ConsumerStatefulWidget {
   const InboxScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<InboxScreen> createState() => _InboxScreenState();
+}
+
+class _InboxScreenState extends ConsumerState<InboxScreen> {
+  bool _markedAsRead = false;
+
+  void _markAllAsRead(List<EncouragementModel> messages) {
+    if (_markedAsRead) return;
+    _markedAsRead = true;
+    final repo = ref.read(encouragementRepositoryProvider);
+    for (final m in messages) {
+      if (!m.isRead) {
+        repo.markAsRead(m.id);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ref = this.ref;
     final inbox = ref.watch(inboxProvider);
     final unreadCount = inbox.maybeWhen(
-      data: (messages) => messages.where((m) => m.reaction == null).length,
+      data: (messages) {
+        // Mark all as read when inbox is viewed
+        _markAllAsRead(messages);
+        return messages.where((m) => !m.isRead).length;
+      },
       orElse: () => 0,
     );
 
@@ -22,7 +46,7 @@ class InboxScreen extends ConsumerWidget {
       backgroundColor: const Color(0xFFF8F9FE),
       body: Column(
         children: [
-          // Header with pink gradient - matching mockup
+          // Header with pink gradient - matching Profile style
           Container(
             padding: EdgeInsets.only(
               top: MediaQuery.of(context).padding.top + AppTheme.spacingM,
@@ -31,54 +55,64 @@ class InboxScreen extends ConsumerWidget {
               bottom: AppTheme.spacingXL,
             ),
             decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFFFF6B9D), Color(0xFFFF8E53)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              gradient: AppTheme.pinkGradient,
               borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(35),
-                bottomRight: Radius.circular(35),
+                bottomLeft: Radius.circular(AppTheme.radiusXLarge),
+                bottomRight: Radius.circular(AppTheme.radiusXLarge),
               ),
             ),
             child: Column(
               children: [
-                const SizedBox(height: AppTheme.spacingM),
-                const Text('💌', style: TextStyle(fontSize: 50))
-                    .animate()
-                    .scale(
-                      begin: const Offset(0.5, 0.5),
-                      end: const Offset(1, 1),
-                      duration: 500.ms,
-                      curve: Curves.elasticOut,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Hộp thư',
+                      style: GoogleFonts.lora(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
+                    if (unreadCount > 0)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                        ),
+                        child: Text(
+                          '$unreadCount mới',
+                          style: GoogleFonts.raleway(fontSize: 12, color: Colors.white),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: AppTheme.spacingXL),
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.5),
+                      width: 3,
+                    ),
+                  ),
+                  child: const Center(
+                    child: Text('💌', style: TextStyle(fontSize: 36)),
+                  ),
+                ),
                 const SizedBox(height: AppTheme.spacingM),
                 Text(
                   'Tin nhắn động viên',
-                  style: GoogleFonts.beVietnamPro(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
+                  style: GoogleFonts.raleway(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),
                 ),
-                if (unreadCount > 0) ...[
-                  const SizedBox(height: AppTheme.spacingS),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      '$unreadCount tin mới',
-                      style: GoogleFonts.beVietnamPro(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFFFF6B9D),
-                      ),
-                    ),
-                  ),
-                ],
               ],
             ),
           ).animate().fadeIn(duration: 400.ms),
@@ -95,7 +129,6 @@ class InboxScreen extends ConsumerWidget {
                     final message = messages[index];
                     return _MessageCard(
                       message: message,
-                      onReact: (reaction) => _handleReaction(ref, message, reaction),
                     ).animate()
                         .fadeIn(delay: Duration(milliseconds: 100 * index))
                         .slideY(begin: 0.2, end: 0);
@@ -111,19 +144,80 @@ class InboxScreen extends ConsumerWidget {
     );
   }
 
-  void _handleReaction(WidgetRef ref, EncouragementModel message, ReactionType reaction) {
-    reactToEncouragement(ref, encouragementId: message.id, reaction: reaction);
-  }
 }
 
-class _MessageCard extends StatelessWidget {
+class _MessageCard extends ConsumerWidget {
   final EncouragementModel message;
-  final Function(ReactionType) onReact;
 
-  const _MessageCard({required this.message, required this.onReact});
+  const _MessageCard({required this.message});
+
+  Future<void> _handleReaction(BuildContext context, WidgetRef ref, ReactionType reaction) async {
+    if (reaction == ReactionType.wantToChat) {
+      final controller = TextEditingController();
+      final result = await showDialog<String>(
+        context: context,
+        builder: (context) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(
+            '💬 Gửi tin nhắn',
+            style: GoogleFonts.beVietnamPro(fontWeight: FontWeight.bold),
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: TextField(
+              controller: controller,
+              autofocus: true,
+              minLines: 3,
+              maxLines: 3,
+              maxLength: 200,
+              style: GoogleFonts.beVietnamPro(),
+              decoration: InputDecoration(
+                hintText: 'Nhập tin nhắn của bạn...',
+                hintStyle: GoogleFonts.beVietnamPro(color: Colors.grey),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Huỷ', style: GoogleFonts.beVietnamPro()),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, controller.text.trim()),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primary,
+                foregroundColor: Colors.white,
+              ),
+              child: Text('Gửi', style: GoogleFonts.beVietnamPro(fontWeight: FontWeight.w600)),
+            ),
+          ],
+        ),
+      );
+      if (result != null && result.isNotEmpty) {
+        await reactToEncouragement(ref, encouragementId: message.id, reaction: reaction, message: result);
+        // Also create a reply in sender's inbox
+        await sendReplyEncouragement(
+          ref,
+          originalEncouragementId: message.id,
+          originalSenderId: message.senderId,
+          content: result,
+        );
+      }
+    } else {
+      await reactToEncouragement(ref, encouragementId: message.id, reaction: reaction);
+    }
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final hasReacted = message.reaction != null;
+    // Real-time sender display name (syncs when sender changes name)
+    final senderNameAsync = ref.watch(userDisplayNameProvider(message.senderId));
+    final senderName = senderNameAsync.valueOrNull ?? message.displayName;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       padding: const EdgeInsets.all(20),
@@ -147,26 +241,48 @@ class _MessageCard extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFFFeaa7), Color(0xFFFdcb6e)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  gradient: message.isReply
+                    ? const LinearGradient(
+                        colors: [Color(0xFFa29bfe), Color(0xFF6c5ce7)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                    : const LinearGradient(
+                        colors: [Color(0xFFFFeaa7), Color(0xFFFdcb6e)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Center(
-                  child: Text('🌟', style: TextStyle(fontSize: 20)),
+                child: Center(
+                  child: Text(
+                    message.isReply ? '💬' : '🌟',
+                    style: const TextStyle(fontSize: 20),
+                  ),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: Text(
-                  message.displayName,
-                  style: GoogleFonts.beVietnamPro(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.textPrimary,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      senderName,
+                      style: GoogleFonts.beVietnamPro(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                    if (message.isReply)
+                      Text(
+                        '↩ Phản hồi tin động viên',
+                        style: GoogleFonts.beVietnamPro(
+                          fontSize: 11,
+                          color: const Color(0xFF6c5ce7),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ],
@@ -180,33 +296,48 @@ class _MessageCard extends StatelessWidget {
               height: 1.6,
             ),
           ),
-          const SizedBox(height: 15),
-          if (message.reaction != null)
-            _ReactionBadge(reaction: message.reaction!)
-          else
+          const SizedBox(height: 12),
+          // Reaction buttons (only for non-reply messages, before reacting)
+          if (!hasReacted && !message.isReply)
             Row(
               children: [
-                _ReactionChip(
+                _ReactionButton(
                   emoji: '❤️',
                   label: 'Cảm ơn',
-                  isSelected: false,
-                  onTap: () => onReact(ReactionType.thanks),
+                  onTap: () => _handleReaction(context, ref, ReactionType.thanks),
                 ),
-                const SizedBox(width: 10),
-                _ReactionChip(
-                  emoji: '😊',
-                  label: 'Vui hơn',
-                  isSelected: false,
-                  onTap: () => onReact(ReactionType.feelingBetter),
+                const SizedBox(width: 8),
+                _ReactionButton(
+                  emoji: '💕',
+                  label: 'Thả tim',
+                  onTap: () => _handleReaction(context, ref, ReactionType.feelingBetter),
                 ),
-                const SizedBox(width: 10),
-                _ReactionChip(
+                const SizedBox(width: 8),
+                _ReactionButton(
                   emoji: '💬',
-                  label: null,
-                  isSelected: false,
-                  onTap: () => onReact(ReactionType.wantToChat),
+                  label: 'Kết nối',
+                  onTap: () => _handleReaction(context, ref, ReactionType.wantToChat),
                 ),
               ],
+            )
+          else
+            // Show what they reacted with
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.green.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                message.reaction == ReactionType.thanks ? '❤️ Đã cảm ơn' :
+                message.reaction == ReactionType.feelingBetter ? '💕 Đã thả tim' :
+                '💬 Đã kết nối',
+                style: GoogleFonts.beVietnamPro(
+                  fontSize: 13,
+                  color: Colors.green,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
         ],
       ),
@@ -214,87 +345,39 @@ class _MessageCard extends StatelessWidget {
   }
 }
 
-class _ReactionChip extends StatelessWidget {
+class _ReactionButton extends StatelessWidget {
   final String emoji;
-  final String? label;
-  final bool isSelected;
+  final String label;
   final VoidCallback onTap;
 
-  const _ReactionChip({
-    required this.emoji,
-    this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
+  const _ReactionButton({required this.emoji, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: isSelected ? AppTheme.primary : Colors.transparent,
-      borderRadius: BorderRadius.circular(25),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(25),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(25),
-            border: Border.all(
-              color: isSelected ? AppTheme.primary : const Color(0xFFE8E8E8),
-              width: 2,
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(emoji, style: const TextStyle(fontSize: 14)),
-              if (label != null) ...[
-                const SizedBox(width: 6),
+    return Expanded(
+      child: Material(
+        color: const Color(0xFFF8F9FE),
+        borderRadius: BorderRadius.circular(10),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Column(
+              children: [
+                Text(emoji, style: const TextStyle(fontSize: 18)),
+                const SizedBox(height: 2),
                 Text(
-                  label!,
+                  label,
                   style: GoogleFonts.beVietnamPro(
-                    fontSize: 14,
-                    color: isSelected ? Colors.white : AppTheme.textSecondary,
+                    fontSize: 11,
+                    color: AppTheme.textSecondary,
                   ),
+                  textAlign: TextAlign.center,
                 ),
               ],
-            ],
+            ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ReactionBadge extends StatelessWidget {
-  final ReactionType reaction;
-  const _ReactionBadge({required this.reaction});
-
-  String get _label {
-    switch (reaction) {
-      case ReactionType.thanks:
-        return '❤️ Đã cảm ơn';
-      case ReactionType.feelingBetter:
-        return '😊 Đã vui hơn';
-      case ReactionType.wantToChat:
-        return '💬 Đã gửi kết nối';
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: AppTheme.primary,
-        borderRadius: BorderRadius.circular(25),
-      ),
-      child: Text(
-        _label,
-        style: GoogleFonts.beVietnamPro(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: Colors.white,
         ),
       ),
     );

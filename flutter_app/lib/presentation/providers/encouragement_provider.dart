@@ -17,6 +17,27 @@ final inboxProvider = StreamProvider<List<EncouragementModel>>((ref) {
   return ref.read(encouragementRepositoryProvider).getInboxStream(uid);
 });
 
+/// Sent encouragements stream (today, for seeing reactions)
+final sentTodayProvider = StreamProvider<List<EncouragementModel>>((ref) {
+  final uid = ref.watch(currentUserIdProvider);
+  if (uid == null) return Stream.value([]);
+  return ref.read(encouragementRepositoryProvider).getSentStream(uid);
+});
+
+/// Total sent count for current user
+final totalSentCountProvider = FutureProvider<int>((ref) async {
+  final uid = ref.watch(currentUserIdProvider);
+  if (uid == null) return 0;
+  return ref.read(encouragementRepositoryProvider).getTotalSentCount(uid);
+});
+
+/// Check if current user already sent to a specific recipient today
+final hasAlreadySentProvider = FutureProvider.family<bool, String>((ref, receiverId) async {
+  final uid = ref.watch(currentUserIdProvider);
+  if (uid == null) return false;
+  return ref.read(encouragementRepositoryProvider).hasAlreadySent(uid, receiverId);
+});
+
 /// Send an encouragement message
 Future<bool> sendEncouragementMessage(
   WidgetRef ref, {
@@ -53,17 +74,52 @@ Future<bool> sendEncouragementMessage(
 
   await encRepo.sendEncouragement(encouragement);
 
-  // Update sender stats
-  final userRepo = ref.read(userRepositoryProvider);
-  final stats = await userRepo.getUserStats(uid);
-  final totalSent = (stats['totalSent'] ?? 0) + 1;
-  await userRepo.updateUserStats(uid, {
-    'totalSent': totalSent,
-    'lastSendDate': DateTime.now().toIso8601String().substring(0, 10),
-  });
+  // Update sender stats (non-blocking, don't fail the send)
+  try {
+    final userRepo = ref.read(userRepositoryProvider);
+    final stats = await userRepo.getUserStats(uid);
+    final totalSent = (stats['totalSent'] ?? 0) + 1;
+    await userRepo.updateUserStats(uid, {
+      'totalSent': totalSent,
+      'lastSendDate': DateTime.now().toIso8601String().substring(0, 10),
+    });
+    ref.invalidate(userStatsProvider);
+  } catch (e) {
+    // Stats update failed (likely permissions), but encouragement was sent
+    print('[MoodBridge] Stats update failed: $e');
+  }
 
-  ref.invalidate(userStatsProvider);
   return true;
+}
+
+/// Send a reply message (B replies to A's encouragement → appears in A's inbox)
+Future<void> sendReplyEncouragement(
+  WidgetRef ref, {
+  required String originalEncouragementId,
+  required String originalSenderId,
+  required String content,
+}) async {
+  final uid = ref.read(currentUserIdProvider);
+  if (uid == null) return;
+
+  final user = ref.read(currentUserProvider).value;
+  final encRepo = ref.read(encouragementRepositoryProvider);
+
+  final reply = EncouragementModel(
+    id: '',
+    senderId: uid,
+    receiverId: originalSenderId,
+    messageType: MessageType.text,
+    content: content,
+    createdAt: DateTime.now(),
+    senderAnonymousId: user?.anonymousId ?? 'User#0000',
+    senderDisplayName: user?.displayName,
+    senderAvatarUrl: user?.avatarUrl,
+    isReply: true,
+    replyToEncouragementId: originalEncouragementId,
+  );
+
+  await encRepo.sendEncouragement(reply);
 }
 
 /// React to an encouragement
@@ -71,6 +127,7 @@ Future<void> reactToEncouragement(
   WidgetRef ref, {
   required String encouragementId,
   required ReactionType reaction,
+  String? message,
 }) async {
   final encRepo = ref.read(encouragementRepositoryProvider);
 
@@ -84,5 +141,5 @@ Future<void> reactToEncouragement(
       reactionStr = 'want_to_chat';
   }
 
-  await encRepo.addReaction(encouragementId, reactionStr);
+  await encRepo.addReaction(encouragementId, reactionStr, message: message);
 }

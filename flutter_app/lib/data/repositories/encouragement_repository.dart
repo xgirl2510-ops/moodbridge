@@ -44,11 +44,15 @@ class EncouragementRepository {
   }
 
   /// Add reaction to an encouragement
-  Future<void> addReaction(String encouragementId, String reaction) async {
-    await _encouragements.doc(encouragementId).update({
+  Future<void> addReaction(String encouragementId, String reaction, {String? message}) async {
+    final data = <String, dynamic>{
       'reaction': reaction,
       'reactionAt': Timestamp.now(),
-    });
+    };
+    if (message != null) {
+      data['reactionMessage'] = message;
+    }
+    await _encouragements.doc(encouragementId).update(data);
   }
 
   /// Mark encouragement as read
@@ -57,6 +61,29 @@ class EncouragementRepository {
       'isRead': true,
       'readAt': Timestamp.now(),
     });
+  }
+
+  /// Count total encouragements sent by user (all time)
+  Future<int> getTotalSentCount(String senderId) async {
+    final snapshot = await _encouragements
+        .where('senderId', isEqualTo: senderId)
+        .count()
+        .get();
+    return snapshot.count ?? 0;
+  }
+
+  /// Get sent encouragements as stream (for sender to see reactions)
+  Stream<List<EncouragementModel>> getSentStream(String userId) {
+    final now = DateTime.now();
+    final todayStart = DateTime(now.year, now.month, now.day);
+    return _encouragements
+        .where('senderId', isEqualTo: userId)
+        .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(todayStart))
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => EncouragementModel.fromFirestore(doc))
+            .toList());
   }
 
   /// Check if user already sent encouragement to someone today

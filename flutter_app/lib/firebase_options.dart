@@ -50,20 +50,18 @@ class DefaultFirebaseOptions {
     storageBucket: 'moodbridge-app.firebasestorage.app',
   );
 
-  // iOS app not yet registered in Firebase Console
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyAHeSPRS-FqQHV8Xhu4P9scdlEAElta76Y',
-    appId: '1:209388970065:ios:PLACEHOLDER_IOS_APP_ID',
+    appId: '1:209388970065:ios:cb56c37b08500681519870',
     messagingSenderId: '209388970065',
     projectId: 'moodbridge-app',
     storageBucket: 'moodbridge-app.firebasestorage.app',
     iosBundleId: 'com.moodbridge.moodbridge',
   );
 
-  // macOS app not yet registered in Firebase Console
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyAHeSPRS-FqQHV8Xhu4P9scdlEAElta76Y',
-    appId: '1:209388970065:ios:PLACEHOLDER_MACOS_APP_ID',
+    appId: '1:209388970065:ios:cb56c37b08500681519870',
     messagingSenderId: '209388970065',
     projectId: 'moodbridge-app',
     storageBucket: 'moodbridge-app.firebasestorage.app',

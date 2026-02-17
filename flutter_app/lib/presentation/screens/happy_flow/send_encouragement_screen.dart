@@ -9,6 +9,7 @@ import '../../../core/constants/templates.dart';
 import '../../../data/models/encouragement_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/encouragement_provider.dart';
+import '../../providers/user_provider.dart';
 
 class SendEncouragementScreen extends ConsumerStatefulWidget {
   final String recipientId;
@@ -33,6 +34,26 @@ class _SendEncouragementScreenState
   String? _selectedTemplateId;
   bool _isCustomMessage = false;
   bool _isSending = false;
+  late List<MessageTemplate> _shuffledTemplates;
+
+  static const int _customMessageUnlockThreshold = 5;
+
+  @override
+  void initState() {
+    super.initState();
+    // Shuffle templates randomly each time screen opens
+    _shuffledTemplates = List<MessageTemplate>.from(AppTemplates.all)..shuffle();
+    // Auto-select first template (random after shuffle)
+    if (_shuffledTemplates.isNotEmpty) {
+      _selectedTemplateId = _shuffledTemplates.first.id;
+    }
+  }
+
+  @override
+  void dispose() {
+    _customMessageController.dispose();
+    super.dispose();
+  }
 
   Future<void> _sendEncouragement() async {
     final uid = ref.read(currentUserIdProvider);
@@ -40,6 +61,12 @@ class _SendEncouragementScreenState
       context.go(Routes.login);
       return;
     }
+
+    if (!_isCustomMessage && _selectedTemplateId == null) return;
+    if (_isCustomMessage && _customMessageController.text.trim().isEmpty) return;
+
+    // Ensure user profile exists before sending
+    await ensureUserProfile(ref, uid, null);
     await _doSend();
   }
 
@@ -48,12 +75,14 @@ class _SendEncouragementScreenState
 
     try {
       String? content;
-      MessageType messageType = MessageType.text;
+      MessageType messageType;
       String? templateId;
 
       if (_isCustomMessage) {
-        content = _customMessageController.text;
-      } else if (_selectedTemplateId != null) {
+        content = _customMessageController.text.trim();
+        messageType = MessageType.text;
+        templateId = null;
+      } else {
         final template = AppTemplates.getById(_selectedTemplateId!);
         content = template?.content;
         templateId = _selectedTemplateId;
@@ -71,6 +100,9 @@ class _SendEncouragementScreenState
       if (!mounted) return;
 
       if (success) {
+        // Refresh providers
+        ref.invalidate(totalSentCountProvider);
+        ref.invalidate(hasAlreadySentProvider(widget.recipientId));
         _showSuccessDialog();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -80,7 +112,7 @@ class _SendEncouragementScreenState
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi: $e')),
+          SnackBar(content: Text('Lỗi: $e'), duration: const Duration(seconds: 5)),
         );
       }
     } finally {
@@ -153,12 +185,6 @@ class _SendEncouragementScreenState
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _customMessageController.dispose();
-    super.dispose();
   }
 
   @override
@@ -265,6 +291,10 @@ class _SendEncouragementScreenState
   }
 
   Widget _buildMessageOptions() {
+    final totalSentAsync = ref.watch(totalSentCountProvider);
+    final totalSent = totalSentAsync.valueOrNull ?? 0;
+    final customUnlocked = totalSent >= _customMessageUnlockThreshold;
+
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -278,9 +308,107 @@ class _SendEncouragementScreenState
             ),
           ),
           const SizedBox(height: 15),
-          ...AppTemplates.all.map((template) {
-            final isSelected =
-                _selectedTemplateId == template.id && !_isCustomMessage;
+
+          // Custom message input - on top, only visible after 5 sends
+          if (customUnlocked) ...[
+            GestureDetector(
+              onTap: () => setState(() {
+                _isCustomMessage = true;
+                _selectedTemplateId = null;
+              }),
+              child: AnimatedContainer(
+                duration: AppTheme.animationFast,
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  color: _isCustomMessage
+                      ? AppTheme.primary.withValues(alpha: 0.1)
+                      : const Color(0xFFF8F9FE),
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(
+                    color: _isCustomMessage ? AppTheme.primary : Colors.transparent,
+                    width: 2,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Text('✏️', style: TextStyle(fontSize: 24)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Viết lời động viên riêng',
+                        style: GoogleFonts.beVietnamPro(
+                          fontSize: 15,
+                          color: AppTheme.textPrimary,
+                          fontWeight: _isCustomMessage ? FontWeight.w600 : FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                    if (_isCustomMessage)
+                      const Icon(Icons.check_circle, color: AppTheme.primary, size: 20),
+                  ],
+                ),
+              ),
+            ),
+            if (_isCustomMessage) ...[
+              TextField(
+                controller: _customMessageController,
+                maxLines: 3,
+                maxLength: 200,
+                autofocus: true,
+                onChanged: (_) => setState(() {}),
+                style: GoogleFonts.beVietnamPro(),
+                decoration: InputDecoration(
+                  hintText: 'Viết lời động viên của bạn...',
+                  hintStyle: GoogleFonts.beVietnamPro(color: AppTheme.textLight),
+                  filled: true,
+                  fillColor: const Color(0xFFF8F9FE),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: const BorderSide(color: AppTheme.primary, width: 2),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: const BorderSide(color: AppTheme.primary, width: 2),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: const BorderSide(color: AppTheme.primary, width: 2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+            ],
+          ] else ...[
+            // Show progress hint toward unlocking custom message
+            Container(
+              margin: const EdgeInsets.only(bottom: 15),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0F0F5),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  const Text('🔒', style: TextStyle(fontSize: 16)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Gửi $totalSent/$_customMessageUnlockThreshold lời động viên để mở khoá viết riêng',
+                      style: GoogleFonts.beVietnamPro(
+                        fontSize: 12,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+
+          // Template buttons (shuffled)
+          ..._shuffledTemplates.map((template) {
+            final isSelected = _selectedTemplateId == template.id && !_isCustomMessage;
             return GestureDetector(
               onTap: () => setState(() {
                 _selectedTemplateId = template.id;
@@ -320,69 +448,16 @@ class _SendEncouragementScreenState
               ),
             );
           }),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: _ActionButton(
-                  emoji: '🎤',
-                  label: 'Ghi âm',
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Tính năng ghi âm sắp ra mắt!')),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(width: 15),
-              Expanded(
-                child: _ActionButton(
-                  emoji: '✏️',
-                  label: 'Viết riêng',
-                  onTap: () => setState(() {
-                    _isCustomMessage = true;
-                    _selectedTemplateId = null;
-                  }),
-                ),
-              ),
-            ],
-          ),
-          if (_isCustomMessage) ...[
-            const SizedBox(height: 15),
-            TextField(
-              controller: _customMessageController,
-              maxLines: 3,
-              maxLength: 200,
-              autofocus: true,
-              style: GoogleFonts.beVietnamPro(),
-              decoration: InputDecoration(
-                hintText: 'Viết lời động viên của bạn...',
-                hintStyle: GoogleFonts.beVietnamPro(color: AppTheme.textLight),
-                filled: true,
-                fillColor: const Color(0xFFF8F9FE),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                  borderSide: const BorderSide(color: AppTheme.primary, width: 2),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                  borderSide: const BorderSide(color: AppTheme.primary, width: 2),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                  borderSide: const BorderSide(color: AppTheme.primary, width: 2),
-                ),
-              ),
-            ),
-          ],
         ],
       ),
     );
   }
 
   Widget _buildSendButton(BuildContext context) {
-    final canSend = _selectedTemplateId != null ||
-        (_isCustomMessage && _customMessageController.text.isNotEmpty);
+    final canSend = _isCustomMessage
+        ? _customMessageController.text.trim().isNotEmpty
+        : _selectedTemplateId != null;
+
 
     return Container(
       padding: EdgeInsets.only(
@@ -430,48 +505,4 @@ class _SendEncouragementScreenState
   }
 }
 
-class _ActionButton extends StatelessWidget {
-  final String emoji;
-  final String label;
-  final VoidCallback onTap;
-
-  const _ActionButton({
-    required this.emoji,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(15),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(15),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: const Color(0xFFE8E8E8), width: 2),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(emoji, style: const TextStyle(fontSize: 18)),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: GoogleFonts.beVietnamPro(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+// Removed _ActionButton - only template selection allowed

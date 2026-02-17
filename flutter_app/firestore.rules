@@ -86,7 +86,8 @@ service cloud.firestore {
         request.resource.data.mood == resource.data.mood &&
         request.resource.data.date == resource.data.date;
       
-      allow delete: if false;
+      // Owner can delete their own checkin (for "Check in lại")
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
     }
     
     // ============================================
