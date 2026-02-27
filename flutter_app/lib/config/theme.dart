@@ -99,50 +99,50 @@ class AppTheme {
       onSurface: textPrimary,
     ),
     scaffoldBackgroundColor: background,
-    textTheme: GoogleFonts.ralewayTextTheme().copyWith(
-      displayLarge: GoogleFonts.lora(
+    textTheme: GoogleFonts.beVietnamProTextTheme().copyWith(
+      displayLarge: GoogleFonts.beVietnamPro(
         fontSize: 32,
         fontWeight: FontWeight.bold,
         color: textPrimary,
       ),
-      displayMedium: GoogleFonts.lora(
+      displayMedium: GoogleFonts.beVietnamPro(
         fontSize: 28,
         fontWeight: FontWeight.bold,
         color: textPrimary,
       ),
-      headlineLarge: GoogleFonts.lora(
+      headlineLarge: GoogleFonts.beVietnamPro(
         fontSize: 24,
         fontWeight: FontWeight.w600,
         color: textPrimary,
       ),
-      headlineMedium: GoogleFonts.lora(
+      headlineMedium: GoogleFonts.beVietnamPro(
         fontSize: 20,
         fontWeight: FontWeight.w600,
         color: textPrimary,
       ),
-      titleLarge: GoogleFonts.raleway(
+      titleLarge: GoogleFonts.beVietnamPro(
         fontSize: 18,
         fontWeight: FontWeight.w600,
         color: textPrimary,
       ),
-      titleMedium: GoogleFonts.raleway(
+      titleMedium: GoogleFonts.beVietnamPro(
         fontSize: 16,
         fontWeight: FontWeight.w500,
         color: textPrimary,
       ),
-      bodyLarge: GoogleFonts.raleway(
+      bodyLarge: GoogleFonts.beVietnamPro(
         fontSize: 16,
         fontWeight: FontWeight.normal,
         color: textPrimary,
         height: 1.6,
       ),
-      bodyMedium: GoogleFonts.raleway(
+      bodyMedium: GoogleFonts.beVietnamPro(
         fontSize: 14,
         fontWeight: FontWeight.normal,
         color: textSecondary,
         height: 1.5,
       ),
-      labelLarge: GoogleFonts.raleway(
+      labelLarge: GoogleFonts.beVietnamPro(
         fontSize: 14,
         fontWeight: FontWeight.w600,
         color: textPrimary,
@@ -152,7 +152,7 @@ class AppTheme {
       backgroundColor: Colors.transparent,
       elevation: 0,
       centerTitle: true,
-      titleTextStyle: GoogleFonts.raleway(
+      titleTextStyle: GoogleFonts.beVietnamPro(
         fontSize: 18,
         fontWeight: FontWeight.w600,
         color: textPrimary,
@@ -175,7 +175,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radiusMedium),
         ),
-        textStyle: GoogleFonts.raleway(
+        textStyle: GoogleFonts.beVietnamPro(
           fontSize: 16,
           fontWeight: FontWeight.w600,
         ),
@@ -189,7 +189,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radiusMedium),
         ),
-        textStyle: GoogleFonts.raleway(
+        textStyle: GoogleFonts.beVietnamPro(
           fontSize: 16,
           fontWeight: FontWeight.w600,
         ),
@@ -211,7 +211,7 @@ class AppTheme {
         borderSide: const BorderSide(color: primary, width: 2),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      hintStyle: GoogleFonts.raleway(
+      hintStyle: GoogleFonts.beVietnamPro(
         color: textLight,
         fontSize: 16,
       ),

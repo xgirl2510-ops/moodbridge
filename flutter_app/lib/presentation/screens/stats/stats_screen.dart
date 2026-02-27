@@ -48,7 +48,7 @@ class StatsScreen extends ConsumerWidget {
                   children: [
                     Text(
                       'Thống kê',
-                      style: GoogleFonts.lora(
+                      style: GoogleFonts.beVietnamPro(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -74,7 +74,7 @@ class StatsScreen extends ConsumerWidget {
                 const SizedBox(height: AppTheme.spacingM),
                 Text(
                   'Thống kê của bạn',
-                  style: GoogleFonts.raleway(
+                  style: GoogleFonts.beVietnamPro(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     color: Colors.white,

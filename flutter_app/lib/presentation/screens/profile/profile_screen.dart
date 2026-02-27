@@ -147,7 +147,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     children: [
                       Text(
                         'Cá nhân',
-                        style: GoogleFonts.lora(
+                        style: GoogleFonts.beVietnamPro(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -179,7 +179,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         children: [
                           Text(
                             user?.anonymousId ?? 'User',
-                            style: GoogleFonts.raleway(
+                            style: GoogleFonts.beVietnamPro(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
                               color: Colors.white,
@@ -209,7 +209,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     ),
                     child: Text(
                       'Ẩn danh',
-                      style: GoogleFonts.raleway(fontSize: 12, color: Colors.white),
+                      style: GoogleFonts.beVietnamPro(fontSize: 12, color: Colors.white),
                     ),
                   ),
                 ],
@@ -279,7 +279,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         Center(
           child: Text(
             'MoodBridge v1.0.0',
-            style: GoogleFonts.raleway(color: AppTheme.textLight, fontSize: 12),
+            style: GoogleFonts.beVietnamPro(color: AppTheme.textLight, fontSize: 12),
           ),
         ),
         const SizedBox(height: AppTheme.spacingXL),
@@ -298,7 +298,7 @@ class _SectionTitle extends StatelessWidget {
       padding: const EdgeInsets.only(left: AppTheme.spacingXS, bottom: AppTheme.spacingS),
       child: Text(
         title,
-        style: GoogleFonts.raleway(
+        style: GoogleFonts.beVietnamPro(
           fontSize: 14,
           fontWeight: FontWeight.w600,
           color: AppTheme.textSecondary,
@@ -356,7 +356,7 @@ class _SettingItem extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: GoogleFonts.raleway(fontSize: 15, color: AppTheme.textPrimary),
+                  style: GoogleFonts.beVietnamPro(fontSize: 15, color: AppTheme.textPrimary),
                 ),
               ),
               const Icon(LucideIcons.chevronRight, color: AppTheme.textLight, size: 20),
@@ -405,12 +405,12 @@ class _ToggleSetting extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.raleway(fontSize: 15, color: AppTheme.textPrimary),
+                  style: GoogleFonts.beVietnamPro(fontSize: 15, color: AppTheme.textPrimary),
                 ),
                 if (subtitle != null)
                   Text(
                     subtitle!,
-                    style: GoogleFonts.raleway(fontSize: 12, color: AppTheme.textLight),
+                    style: GoogleFonts.beVietnamPro(fontSize: 12, color: AppTheme.textLight),
                   ),
               ],
             ),

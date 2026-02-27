@@ -113,7 +113,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               const SizedBox(height: AppTheme.spacingL),
               Text(
                 'MoodBridge',
-                style: GoogleFonts.lora(
+                style: GoogleFonts.beVietnamPro(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
                   color: AppTheme.textPrimary,
@@ -122,7 +122,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               const SizedBox(height: AppTheme.spacingXS),
               Text(
                 'Cau Noi Tam Trang',
-                style: GoogleFonts.raleway(
+                style: GoogleFonts.beVietnamPro(
                   fontSize: 16,
                   color: AppTheme.textSecondary,
                 ),
@@ -157,7 +157,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   padding: const EdgeInsets.only(bottom: AppTheme.spacingS),
                   child: Text(
                     _error!,
-                    style: GoogleFonts.raleway(
+                    style: GoogleFonts.beVietnamPro(
                       color: Colors.red,
                       fontSize: 13,
                     ),
@@ -195,7 +195,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   _isLogin
                       ? 'Chua co tai khoan? Dang ky'
                       : 'Da co tai khoan? Dang nhap',
-                  style: GoogleFonts.raleway(color: AppTheme.primary),
+                  style: GoogleFonts.beVietnamPro(color: AppTheme.primary),
                 ),
               ),
 
@@ -209,7 +209,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingM),
                     child: Text(
                       'hoac',
-                      style: GoogleFonts.raleway(
+                      style: GoogleFonts.beVietnamPro(
                         color: AppTheme.textLight,
                         fontSize: 13,
                       ),

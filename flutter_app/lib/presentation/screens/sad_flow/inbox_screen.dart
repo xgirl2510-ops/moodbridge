@@ -68,7 +68,7 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
                   children: [
                     Text(
                       'Hộp thư',
-                      style: GoogleFonts.lora(
+                      style: GoogleFonts.beVietnamPro(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -83,7 +83,7 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
                         ),
                         child: Text(
                           '$unreadCount mới',
-                          style: GoogleFonts.raleway(fontSize: 12, color: Colors.white),
+                          style: GoogleFonts.beVietnamPro(fontSize: 12, color: Colors.white),
                         ),
                       ),
                   ],
@@ -107,7 +107,7 @@ class _InboxScreenState extends ConsumerState<InboxScreen> {
                 const SizedBox(height: AppTheme.spacingM),
                 Text(
                   'Tin nhắn động viên',
-                  style: GoogleFonts.raleway(
+                  style: GoogleFonts.beVietnamPro(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     color: Colors.white,
