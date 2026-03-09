@@ -216,7 +216,7 @@ class _MessageCard extends ConsumerWidget {
     final hasReacted = message.reaction != null;
     // Real-time sender display name (syncs when sender changes name)
     final senderNameAsync = ref.watch(userDisplayNameProvider(message.senderId));
-    final senderName = senderNameAsync.valueOrNull ?? message.displayName;
+    final senderName = senderNameAsync.value ?? message.displayName;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 15),

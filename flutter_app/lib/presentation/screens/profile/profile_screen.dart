@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-import '../../../config/routes.dart';
 import '../../../config/theme.dart';
-import '../../../services/notification_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/checkin_provider.dart';
 import '../../providers/user_provider.dart';
@@ -31,16 +28,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     if (uid == null) return;
     await ensureUserProfile(ref, uid, null);
     ref.invalidate(currentUserProvider);
-  }
-
-  Future<void> _logout() async {
-    final uid = ref.read(currentUserIdProvider);
-    if (uid != null) {
-      await NotificationService().removeFcmToken(uid);
-    }
-    final authRepo = ref.read(authRepositoryProvider);
-    await authRepo.signOut();
-    if (mounted) context.go(Routes.login);
   }
 
   Future<void> _toggleSetting(String field, bool value) async {
@@ -256,25 +243,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
           ],
         ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2, end: 0),
-        const SizedBox(height: AppTheme.spacingL),
-
         const SizedBox(height: AppTheme.spacingXL),
-
-        // Logout button
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: _logout,
-            icon: const Icon(LucideIcons.logOut),
-            label: const Text('Đăng xuất'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.red,
-              side: const BorderSide(color: Colors.red),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-            ),
-          ),
-        ).animate().fadeIn(delay: 500.ms),
-        const SizedBox(height: AppTheme.spacingL),
 
         Center(
           child: Text(
@@ -321,49 +290,6 @@ class _SettingCard extends StatelessWidget {
         boxShadow: AppTheme.cardShadow,
       ),
       child: Column(children: children),
-    );
-  }
-}
-
-class _SettingItem extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final VoidCallback onTap;
-
-  const _SettingItem({required this.icon, required this.title, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        child: Padding(
-          padding: const EdgeInsets.all(AppTheme.spacingM),
-          child: Row(
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: AppTheme.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
-                ),
-                child: Icon(icon, color: AppTheme.primary, size: 18),
-              ),
-              const SizedBox(width: AppTheme.spacingM),
-              Expanded(
-                child: Text(
-                  title,
-                  style: GoogleFonts.beVietnamPro(fontSize: 15, color: AppTheme.textPrimary),
-                ),
-              ),
-              const Icon(LucideIcons.chevronRight, color: AppTheme.textLight, size: 20),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

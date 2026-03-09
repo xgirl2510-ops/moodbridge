@@ -116,7 +116,7 @@ class MatchListScreen extends ConsumerWidget {
                 // Sort: unsent first, already sent last
                 final sentStates = <String, bool>{};
                 for (final m in matches) {
-                  sentStates[m.userId] = ref.watch(hasAlreadySentProvider(m.userId)).valueOrNull ?? false;
+                  sentStates[m.userId] = ref.watch(hasAlreadySentProvider(m.userId)).value ?? false;
                 }
                 final sorted = List<CheckinModel>.from(matches)
                   ..sort((a, b) {
@@ -167,11 +167,11 @@ class _MatchCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final alreadySent = ref.watch(hasAlreadySentProvider(checkin.userId)).valueOrNull ?? false;
+    final alreadySent = ref.watch(hasAlreadySentProvider(checkin.userId)).value ?? false;
     // Real-time display name (syncs when user changes name)
-    final realTimeName = ref.watch(userDisplayNameProvider(checkin.userId)).valueOrNull ?? checkin.displayName;
+    final realTimeName = ref.watch(userDisplayNameProvider(checkin.userId)).value ?? checkin.displayName;
     // Check if receiver reacted to our encouragement
-    final sentToday = ref.watch(sentTodayProvider).valueOrNull ?? [];
+    final sentToday = ref.watch(sentTodayProvider).value ?? [];
     final sentToThis = sentToday.where((e) => e.receiverId == checkin.userId).toList();
     final sentEncouragement = sentToThis.isNotEmpty ? sentToThis.first : null;
     final reactionLabel = _getReactionLabel(sentEncouragement);

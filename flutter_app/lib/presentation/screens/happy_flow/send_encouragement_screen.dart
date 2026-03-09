@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../config/routes.dart';
 import '../../../config/theme.dart';
 import '../../../core/constants/templates.dart';
 import '../../../data/models/encouragement_model.dart';
@@ -58,7 +56,6 @@ class _SendEncouragementScreenState
   Future<void> _sendEncouragement() async {
     final uid = ref.read(currentUserIdProvider);
     if (uid == null) {
-      context.go(Routes.login);
       return;
     }
 
@@ -292,7 +289,7 @@ class _SendEncouragementScreenState
 
   Widget _buildMessageOptions() {
     final totalSentAsync = ref.watch(totalSentCountProvider);
-    final totalSent = totalSentAsync.valueOrNull ?? 0;
+    final totalSent = totalSentAsync.value ?? 0;
     final customUnlocked = totalSent >= _customMessageUnlockThreshold;
 
     return Padding(

@@ -24,8 +24,12 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Initialize notification service
-  await NotificationService().initialize();
+  // Initialize notification service (non-blocking — don't crash app if fails)
+  try {
+    await NotificationService().initialize();
+  } catch (e) {
+    debugPrint('[MoodBridge] Notification init error: $e');
+  }
 
   // Register Vietnamese locale for timeago
   timeago.setLocaleMessages('vi', timeago.ViMessages());

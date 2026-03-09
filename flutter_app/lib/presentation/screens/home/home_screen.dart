@@ -89,7 +89,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     final uid = ref.read(currentUserIdProvider);
     if (uid == null) {
-      context.go(Routes.login);
       return;
     }
 

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../presentation/screens/splash/splash_screen.dart';
-import '../presentation/screens/auth/login_screen.dart';
 import '../presentation/screens/home/home_screen.dart';
 import '../presentation/screens/happy_flow/match_list_screen.dart';
 import '../presentation/screens/happy_flow/send_encouragement_screen.dart';
@@ -14,7 +13,6 @@ import '../presentation/widgets/common/main_scaffold.dart';
 
 class Routes {
   static const splash = '/';
-  static const login = '/login';
   static const home = '/home';
   static const matchList = '/match-list';
   static const sendEncouragement = '/send-encouragement';
@@ -35,12 +33,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.splash,
         builder: (context, state) => const SplashScreen(),
-      ),
-
-      // Login
-      GoRoute(
-        path: Routes.login,
-        builder: (context, state) => const LoginScreen(),
       ),
 
       // Match list moved to ShellRoute for bottom nav
